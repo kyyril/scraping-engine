@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  scraper-api:
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=warn
+      - MAX_CONCURRENT_JOBS=5
+      - BROWSER_TIMEOUT_SECONDS=60
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    environment:
+      - POSTGRES_DB=scraper_db_prod
+      - POSTGRES_USER=scraper_prod
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-scraper_prod_password}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+volumes:
+  postgres_prod_data:
