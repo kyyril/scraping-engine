@@ -31,4 +31,5 @@ type ScraperService interface {
 	GetJob(jobID string) (*models.ScrapingJob, error)
 	GetJobResult(jobID string) (*models.ScrapingResult, error)
 	ListJobs(status models.JobStatus, limit, offset int) ([]*models.ScrapingJob, error)
+	ProcessJob(ctx context.Context, session BrowserSession, job *models.ScrapingJob) (*models.ScrapingResult, error)
 }

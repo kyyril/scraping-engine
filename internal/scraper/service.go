@@ -24,20 +24,7 @@ func NewService(browserManager BrowserManager, db *gorm.DB) ScraperService {
 	}
 }
 
-func (s *Service) ExecuteJob(ctx context.Context, job *models.ScrapingJob) error {
-	// Update job status to processing
-	job.Status = models.StatusProcessing
-	if err := s.db.Save(job).Error; err != nil {
-		return fmt.Errorf("failed to update job status: %w", err)
-	}
-
-	// Create browser session
-	session, err := s.browserManager.CreateSession(ctx)
-	if err != nil {
-		return s.markJobFailed(job, fmt.Errorf("failed to create browser session: %w", err))
-	}
-	defer session.Close()
-
+func (s *Service) ProcessJob(ctx context.Context, session BrowserSession, job *models.ScrapingJob) (*models.ScrapingResult, error) {
 	// Sort actions by order
 	sort.Slice(job.Actions, func(i, j int) bool {
 		return job.Actions[i].Order < job.Actions[j].Order
@@ -52,14 +39,37 @@ func (s *Service) ExecuteJob(ctx context.Context, job *models.ScrapingJob) error
 
 	for _, action := range job.Actions {
 		if err := s.executeAction(session, action, result); err != nil {
-			return s.markJobFailed(job, fmt.Errorf("failed to execute action %s: %w", action.Type, err))
+			return nil, fmt.Errorf("failed to execute action %s: %w", action.Type, err)
 		}
 	}
 
-	// Save result
+	// Add metadata
 	result.Metadata["execution_time"] = time.Since(job.UpdatedAt).Seconds()
 	result.Metadata["user_agent"] = job.UserAgent
 
+	return result, nil
+}
+
+func (s *Service) ExecuteJob(ctx context.Context, job *models.ScrapingJob) error {
+	// Update job status to processing
+	job.Status = models.StatusProcessing
+	if err := s.db.Save(job).Error; err != nil {
+		return fmt.Errorf("failed to update job status: %w", err)
+	}
+
+	// Create browser session
+	session, err := s.browserManager.CreateSession(ctx)
+	if err != nil {
+		return s.markJobFailed(job, fmt.Errorf("failed to create browser session: %w", err))
+	}
+	defer session.Close()
+
+	result, err := s.ProcessJob(ctx, session, job)
+	if err != nil {
+		return s.markJobFailed(job, err)
+	}
+
+	// Save result
 	if err := s.db.Create(result).Error; err != nil {
 		return s.markJobFailed(job, fmt.Errorf("failed to save result: %w", err))
 	}
