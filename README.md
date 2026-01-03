@@ -1,15 +1,15 @@
-# 🕷️ Scraping Engine: Ultimate CLI & API Scraper
+# Scraping Engine: Ultimate CLI & API Scraper
 
 Professional, enterprise-grade web scraping engine built with **Go**. It works both as a dead-simple **CLI tool** for quick scrapes and as a powerful **Distributed API Service** for large-scale automation.
 
-## 🚀 Dual-Mode Functionality
+## Dual-Mode Functionality
 
 1.  **CLI Tool**: Perfect for developers. No setup, no database, just run and get data.
 2.  **API Service**: Scalable REST API with a job queue, PostgreSQL persistence, and worker pools.
 
 ---
 
-## 🛠️ Quick Start (CLI Mode) - No Setup Needed!
+## Quick Start (CLI Mode) - No Setup Needed!
 
 Just download/clone and run. No database or Docker required.
 
@@ -31,7 +31,7 @@ go build -o scrap.exe ./cmd/cli/main.go
 
 ---
 
-## 🌐 API Service Mode (Docker)
+## API Service Mode (Docker)
 
 Ideal for production, background jobs, and distributed environments.
 
@@ -56,7 +56,7 @@ curl http://localhost:8080/api/v1/jobs/{job-id}/result
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Headless Chrome**: Uses real browser rendering via `chromedp` (handles SPA/React/Vue).
 - **Anti-Detection**: Built-in User-Agent rotation and human-like interaction.
@@ -65,7 +65,7 @@ curl http://localhost:8080/api/v1/jobs/{job-id}/result
 - **Swagger UI**: Interactive API testing at `http://localhost:8080/swagger/`.
 - **Flexible Actions**: Custom flows (navigate -> wait -> click -> type -> extract).
 
-## 📋 Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -81,7 +81,7 @@ curl http://localhost:8080/api/v1/jobs/{job-id}/result
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## ⚙️ Supported Actions (API)
+## Supported Actions (API)
 
 | Action | Description | Parameters |
 |--------|-------------|------------|
@@ -93,9 +93,7 @@ curl http://localhost:8080/api/v1/jobs/{job-id}/result
 | `screenshot`| Take photo | - |
 | `scroll` | Scroll down | `options`: `{"x": 0, "y": 500}` |
 
-## 🚀 Deployment
-
-- **Railway**: Fully compatible (see `docs/DEPLOYMENT.md`).
+## Deployment
 - **Docker**: `docker build -t scraper .`
 
 ## 📄 License
