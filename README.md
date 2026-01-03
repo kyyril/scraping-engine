@@ -4,16 +4,16 @@ Enterprise-grade distributed web scraping service with headless browser support,
 
 ## Features
 
-- 🚀 **RESTful API** with Fiber for job submission and management
-- 🔄 **Job Queue System** with configurable concurrency limits
-- 🌐 **Headless Browser Integration** using chromedp (Chrome DevTools Protocol)
-- 💾 **Persistent Storage** with GORM and PostgreSQL
-- 🔁 **Retry Mechanisms** with exponential backoff
-- 🎭 **User-Agent Rotation** for anti-detection
-- 📊 **Resource Management** with proper cleanup
-- 🐳 **Docker Support** with optimized Alpine + Chromium image
-- 📖 **Swagger Documentation** for API endpoints
-- 🔍 **Health Checks** and monitoring endpoints
+- **RESTful API** with Fiber for job submission and management
+- **Job Queue System** with configurable concurrency limits
+- **Headless Browser Integration** using chromedp (Chrome DevTools Protocol)
+- **Persistent Storage** with GORM and PostgreSQL
+- **Retry Mechanisms** with exponential backoff
+- **User-Agent Rotation** for anti-detection
+- **Resource Management** with proper cleanup
+- **Docker Support** with optimized Alpine + Chromium image
+- **Swagger Documentation** for API endpoints
+- **Health Checks** and monitoring endpoints
 
 ## Architecture
 
