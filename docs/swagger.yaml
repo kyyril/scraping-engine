@@ -1,0 +1,323 @@
+basePath: /
+definitions:
+  api.ActionRequest:
+    properties:
+      options:
+        additionalProperties: true
+        type: object
+      target:
+        example: '#search-input'
+        type: string
+      type:
+        enum:
+        - navigate
+        - click
+        - type
+        - wait
+        - screenshot
+        - extract
+        - scroll
+        example: navigate
+        type: string
+      value:
+        example: search query
+        type: string
+    type: object
+  api.CreateJobRequest:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/api.ActionRequest'
+        type: array
+      max_retries:
+        example: 3
+        type: integer
+      timeout:
+        example: 30
+        type: integer
+      url:
+        example: https://example.com
+        type: string
+      user_agent:
+        example: Mozilla/5.0...
+        type: string
+    type: object
+  api.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  api.QueueStatusResponse:
+    properties:
+      is_running:
+        type: boolean
+      queue_size:
+        type: integer
+    type: object
+  models.ActionType:
+    enum:
+    - navigate
+    - click
+    - type
+    - wait
+    - screenshot
+    - extract
+    - scroll
+    type: string
+    x-enum-varnames:
+    - ActionNavigate
+    - ActionClick
+    - ActionType_
+    - ActionWait
+    - ActionScreenshot
+    - ActionExtract
+    - ActionScroll
+  models.JobAction:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      job_id:
+        type: string
+      options:
+        additionalProperties: true
+        type: object
+      order:
+        type: integer
+      target:
+        description: CSS selector, URL, or text
+        type: string
+      type:
+        $ref: '#/definitions/models.ActionType'
+      value:
+        description: Text to type, wait duration, etc.
+        type: string
+    type: object
+  models.JobStatus:
+    enum:
+    - pending
+    - processing
+    - completed
+    - failed
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusProcessing
+    - StatusCompleted
+    - StatusFailed
+  models.ScrapingJob:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/models.JobAction'
+        type: array
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      error:
+        type: string
+      id:
+        type: string
+      max_retries:
+        type: integer
+      result:
+        $ref: '#/definitions/models.ScrapingResult'
+      retries:
+        type: integer
+      status:
+        $ref: '#/definitions/models.JobStatus'
+      timeout:
+        description: in seconds
+        type: integer
+      updated_at:
+        type: string
+      url:
+        type: string
+      user_agent:
+        type: string
+    type: object
+  models.ScrapingResult:
+    properties:
+      created_at:
+        type: string
+      data:
+        additionalProperties: true
+        type: object
+      id:
+        type: string
+      job_id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      screenshots:
+        items:
+          type: string
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: "Enterprise-grade distributed web scraping service with headless browser
+    support.\n\n### \U0001F680 Quick Usage Guide:\n| Action Type | **Target** (Field)
+    | **Value** (Field) | Description |\n| :--- | :--- | :--- | :--- |\n| **navigate**
+    | Full URL (e.g., https://google.com) | - | Navigates the browser to the specified
+    URL |\n| **click** | CSS Selector (e.g., #submit-btn) | - | Clicks on the element
+    matching the selector |\n| **type** | CSS Selector (e.g., input[name='q']) | Text
+    to type | Types text into an input field |\n| **wait** | - | Seconds (e.g., 5)
+    | Pauses execution for specified seconds |\n| **extract** | CSS Selector (e.g.,
+    .price-tag) | Key Name | Extracts text and saves it to the result map with the
+    given Key Name |\n| **screenshot** | - | - | Takes a full-page screenshot (base64)
+    |\n| **scroll** | - | - | Scrolls down the page (options: x, y) |\n\n### \U0001F4A1
+    Tips:\n- **CSS Selectors**: Use standard selectors like `.class`, `#id`, or `tag[attr='val']`.\n-
+    **Results**: After a job is `completed`, fetch results from the `/result` endpoint.\n-
+    **Headless**: All jobs run in a real headless Chrome instance."
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Distributed Web Scraper API
+  version: "1.0"
+paths:
+  /api/v1/jobs:
+    get:
+      description: View history of tasks and their status
+      parameters:
+      - description: Filter by status
+        enum:
+        - pending
+        - processing
+        - completed
+        - failed
+        in: query
+        name: status
+        type: string
+      - default: 10
+        description: Number of jobs to return
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of jobs to skip
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ScrapingJob'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List all scraping tasks
+      tags:
+      - job-engine
+    post:
+      consumes:
+      - application/json
+      description: "\U0001F525 **SUPER EASY MODE**: Just send { \"url\": \"...\" }
+        and we will scrape everything on that page automatically.\n\U0001F6E0️ **CUSTOM
+        MODE**: Provide \"actions\" (navigate, click, extract, etc.) for complex workflows."
+      parameters:
+      - description: Request Body (Try just { \
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateJobRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ScrapingJob'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: "[\U0001F525 Scrape All] or Custom Task"
+      tags:
+      - jobs-management
+  /api/v1/jobs/{id}:
+    get:
+      description: Get full details of a specific task
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ScrapingJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Check task status/details
+      tags:
+      - job-engine
+  /api/v1/jobs/{id}/result:
+    get:
+      description: Retrieve the final data/results of a completed task
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ScrapingResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Fetch scraped data
+      tags:
+      - results-delivery
+  /api/v1/queue/status:
+    get:
+      description: See current queue load and engine status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.QueueStatusResponse'
+      summary: Monitor engine health
+      tags:
+      - system-health
+swagger: "2.0"

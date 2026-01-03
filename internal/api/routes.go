@@ -42,12 +42,13 @@ func SetupRoutes(app *fiber.App, scraperService scraper.ScraperService, jobQueue
 	queue.Get("/status", getQueueStatus(jobQueue))
 }
 
-// @Summary Create a new scraping job
-// @Description Submit a new web scraping job to the queue
-// @Tags jobs
+// @Summary [Scrape All] or Custom Task
+// @Description **SUPER EASY MODE**: Just send { "url": "..." } and we will scrape everything on that page automatically.
+// @Description **CUSTOM MODE**: Provide "actions" (navigate, click, extract, etc.) for complex workflows.
+// @Tags jobs-management
 // @Accept json
 // @Produce json
-// @Param job body CreateJobRequest true "Job configuration"
+// @Param job body CreateJobRequest true "Request Body (Try just { \"url\": \"https://google.com\" } for Scrape All!)"
 // @Success 201 {object} models.ScrapingJob
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
@@ -74,10 +75,19 @@ func createJob(scraperService scraper.ScraperService, jobQueue *queue.JobQueue, 
 				Error: "Invalid URL: " + err.Error(),
 			})
 		}
+		// If no actions provided, use default (navigate + extract body)
 		if len(req.Actions) == 0 {
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error: "At least one action is required",
-			})
+			req.Actions = []ActionRequest{
+				{
+					Type:   string(models.ActionNavigate),
+					Target: req.URL,
+				},
+				{
+					Type:   string(models.ActionExtract),
+					Target: "body",
+					Value:  "content",
+				},
+			}
 		}
 
 		// Validate actions
@@ -140,9 +150,9 @@ func createJob(scraperService scraper.ScraperService, jobQueue *queue.JobQueue, 
 	}
 }
 
-// @Summary List scraping jobs
-// @Description Get a list of scraping jobs with optional filtering
-// @Tags jobs
+// @Summary List all scraping tasks
+// @Description View history of tasks and their status
+// @Tags job-engine
 // @Produce json
 // @Param status query string false "Filter by status" Enums(pending, processing, completed, failed)
 // @Param limit query int false "Number of jobs to return" default(10)
@@ -174,9 +184,9 @@ func listJobs(scraperService scraper.ScraperService) fiber.Handler {
 	}
 }
 
-// @Summary Get a specific job
-// @Description Get details of a specific scraping job by ID
-// @Tags jobs
+// @Summary Check task status/details
+// @Description Get full details of a specific task
+// @Tags job-engine
 // @Produce json
 // @Param id path string true "Job ID"
 // @Success 200 {object} models.ScrapingJob
@@ -203,9 +213,9 @@ func getJob(scraperService scraper.ScraperService) fiber.Handler {
 	}
 }
 
-// @Summary Get job result
-// @Description Get the result of a completed scraping job
-// @Tags jobs
+// @Summary Fetch scraped data
+// @Description Retrieve the final data/results of a completed task
+// @Tags results-delivery
 // @Produce json
 // @Param id path string true "Job ID"
 // @Success 200 {object} models.ScrapingResult
@@ -232,9 +242,9 @@ func getJobResult(scraperService scraper.ScraperService) fiber.Handler {
 	}
 }
 
-// @Summary Get queue status
-// @Description Get current status of the job queue
-// @Tags queue
+// @Summary Monitor engine health
+// @Description See current queue load and engine status
+// @Tags system-health
 // @Produce json
 // @Success 200 {object} QueueStatusResponse
 // @Router /api/v1/queue/status [get]

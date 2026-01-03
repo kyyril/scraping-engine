@@ -2,7 +2,7 @@ package api
 
 type CreateJobRequest struct {
 	URL        string          `json:"url" example:"https://example.com"`
-	Actions    []ActionRequest `json:"actions"`
+	Actions    []ActionRequest `json:"actions,omitempty"`
 	UserAgent  string          `json:"user_agent,omitempty" example:"Mozilla/5.0..."`
 	Timeout    int             `json:"timeout,omitempty" example:"30"`
 	MaxRetries int             `json:"max_retries,omitempty" example:"3"`

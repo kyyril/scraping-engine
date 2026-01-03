@@ -24,14 +24,30 @@ import (
 
 // @title Distributed Web Scraper API
 // @version 1.0
-// @description Enterprise-grade distributed web scraping service with headless browser support
+// @description Enterprise-grade distributed web scraping service with headless browser support.
+// @description
+// @description ### 🚀 Quick Usage Guide:
+// @description | Action Type | **Target** (Field) | **Value** (Field) | Description |
+// @description | :--- | :--- | :--- | :--- |
+// @description | **navigate** | Full URL (e.g., https://google.com) | - | Navigates the browser to the specified URL |
+// @description | **click** | CSS Selector (e.g., #submit-btn) | - | Clicks on the element matching the selector |
+// @description | **type** | CSS Selector (e.g., input[name='q']) | Text to type | Types text into an input field |
+// @description | **wait** | - | Seconds (e.g., 5) | Pauses execution for specified seconds |
+// @description | **extract** | CSS Selector (e.g., .price-tag) | Key Name | Extracts text and saves it to the result map with the given Key Name |
+// @description | **screenshot** | - | - | Takes a full-page screenshot (base64) |
+// @description | **scroll** | - | - | Scrolls down the page (options: x, y) |
+// @description
+// @description ### 💡 Tips:
+// @description - **CSS Selectors**: Use standard selectors like `.class`, `#id`, or `tag[attr='val']`.
+// @description - **Results**: After a job is `completed`, fetch results from the `/result` endpoint.
+// @description - **Headless**: All jobs run in a real headless Chrome instance.
 // @termsOfService http://swagger.io/terms/
 // @contact.name API Support
 // @contact.email support@example.com
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 // @host localhost:8080
-// @BasePath /api/v1
+// @BasePath /
 func main() {
 	// Load configuration
 	cfg := config.Load()
