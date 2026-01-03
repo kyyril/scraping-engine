@@ -2,6 +2,7 @@ package main
 
 import (
 	"distributed-scraper/internal/api"
+	_ "distributed-scraper/docs"
 	"distributed-scraper/internal/browser"
 	"distributed-scraper/internal/middleware"
 	"distributed-scraper/internal/models"
