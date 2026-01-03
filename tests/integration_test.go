@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -104,8 +105,12 @@ func TestCreateJobValidation(t *testing.T) {
 }
 
 func TestDatabaseConnection(t *testing.T) {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		dbURL = "postgres://scraper:scraper_password@localhost:5432/scraper_test?sslmode=disable"
+	}
 	cfg := &config.Config{
-		DatabaseURL: "postgres://scraper:scraper_password@localhost:5432/scraper_test?sslmode=disable",
+		DatabaseURL: dbURL,
 	}
 	
 	db, err := database.Connect(cfg.DatabaseURL)

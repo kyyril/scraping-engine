@@ -50,7 +50,7 @@ type JobAction struct {
 	Type      ActionType              `gorm:"not null" json:"type"`
 	Target    string                  `json:"target,omitempty"`    // CSS selector, URL, or text
 	Value     string                  `json:"value,omitempty"`     // Text to type, wait duration, etc.
-	Options   map[string]interface{}  `gorm:"type:jsonb" json:"options,omitempty"`
+	Options   map[string]interface{}  `gorm:"type:jsonb;serializer:json" json:"options,omitempty"`
 	Order     int                     `gorm:"not null" json:"order"`
 	CreatedAt time.Time               `json:"created_at"`
 }
@@ -58,9 +58,9 @@ type JobAction struct {
 type ScrapingResult struct {
 	ID          uuid.UUID               `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	JobID       uuid.UUID               `gorm:"type:uuid;not null;unique" json:"job_id"`
-	Data        map[string]interface{}  `gorm:"type:jsonb" json:"data"`
-	Screenshots []string                `gorm:"type:text[]" json:"screenshots,omitempty"`
-	Metadata    map[string]interface{}  `gorm:"type:jsonb" json:"metadata"`
+	Data        map[string]interface{}  `gorm:"type:jsonb;serializer:json" json:"data"`
+	Screenshots []string                `gorm:"type:text[];serializer:json" json:"screenshots,omitempty"`
+	Metadata    map[string]interface{}  `gorm:"type:jsonb;serializer:json" json:"metadata"`
 	CreatedAt   time.Time               `json:"created_at"`
 }
 
